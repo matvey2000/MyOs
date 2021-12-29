@@ -98,8 +98,21 @@ console:
 			call print
 			
 			jmp console
+rewritefile:
+	;ax = code (offset)
+	;bx = lenght code
+	;dx = filename
+	
+	
+	
+	ret
 deletefile:
 	;dx = filename (offset)
+	push ax
+	push bx
+	push cx
+	push dx
+	
 	call readservicesector
 	mov ax, 0x6C00
 	sub ax, 102
@@ -124,12 +137,22 @@ deletefile:
 		mov bx, ax
 		mov byte [bx], 0
 		call writeservicesector
-		ret
+		jmp enddelete
 	errordelete:
 		mov bx, errorfilemissing
 		call print
+		jmp enddelete
+	enddelete:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
 		ret
 resizefile:
+	push ax
+	push bx
+	push cx
+	push dx
 	;dx = filename (offset)
 	;cx = new size
 	call readservicesector
@@ -141,7 +164,7 @@ resizefile:
 		add ax, 102
 		
 		cmp ax, 0x7BFF
-		ja errordelete
+		ja errorresize
 		
 		push ax
 		push dx
@@ -177,8 +200,8 @@ resizefile:
 			jmp resizecontinue
 	resizecontinue:
 		add bx, 102
-		cmp bx, endrize
-		ja errordelete
+		cmp bx, 0x7BFF
+		ja endresize
 		
 		cmp dl, 1
 		je resizeadd
@@ -188,13 +211,18 @@ resizefile:
 		resizeadd:
 			add word[bx], dx
 			jmp resizecontinue
-	endrize:
+	endresize:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
 		ret
 	errorresize:
 		mov bx, errorfilemissing
 		call print
-		ret
+		jmp endresize
 formatdisk:
+	push bx
 	mov bx, 0x6C00
 	;service sector
 	lpsformat:
@@ -205,8 +233,13 @@ formatdisk:
 		cmp bx, 0x7BFF
 		jb lpsformat
 	call writeservicesector
+	pop bx
 	ret
 readstringconsole:
+	push ax
+	push bx
+	push cx
+	push dx
 	mov cx, 0;lenght buffer
 	input:
 		;input
@@ -232,6 +265,10 @@ readstringconsole:
 		mov buffer[bx], al
 		
 		;return buffer
+		pop dx
+		pop cx
+		pop bx
+		pop ax
 		ret
 readservicesector:
 	push ax
@@ -282,6 +319,11 @@ writeservicesector:
 createfile:
 	;ax = name file(offset)
 	push ax
+	push bx
+	push cx
+	push dx
+	
+	push ax
 	
 	;read
 	call readservicesector
@@ -320,15 +362,24 @@ createfile:
 		;error size
 		mov bx, errorsrevicesector
 		call print
-		
-		ret
+		jmp createret
 	endcreate:
 		;write
 		call writeservicesector
+		jmp createret
+	createret:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
 		ret
 equals:
 	;ax - s1
 	;dx - s2
+	push ax
+	push bx
+	push cx
+	push dx
 	lpsequal:
 		mov bx, ax
 		mov cl, byte [bx]
@@ -345,6 +396,10 @@ equals:
 		add dx, 1
 		jmp lpsequal
 	return:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
 		ret
 	;return flag (read je, jne)
 print:
