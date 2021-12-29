@@ -102,7 +102,6 @@ resizefile:
 	endresize:
 		ret
 formatdisk:
-	call readservicesector
 	mov bx, 0x6C00
 	;service sector
 	lpsformat:
@@ -146,7 +145,7 @@ readservicesector:
 	mov dl, 0x80;hdd
 	xor dh, dh
 	;cilinder, sector
-	mov cl, 0x3
+	mov cl, 0x1
 	mov ch, 0x1
 	mov al, 0x1;count
 	
@@ -159,7 +158,7 @@ writeservicesector:
 	mov dl, 0x80;hdd
 	xor dh, dh
 	;cilinder, sector
-	mov cl, 0x3
+	mov cl, 0x1
 	mov ch, 0x1
 	mov al, 0x1;count
 	
