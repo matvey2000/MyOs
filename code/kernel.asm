@@ -82,20 +82,37 @@ console:
 			call print
 			
 			jmp console
+resizefile:
+	;dx = filename (offset)
+	mov ax, 0x6C00
+	;service sector
+	lpsresize:
+		call equals
+		je resizemain
+		
+		add ax, 102
+		cmp ax, 0x7BFF
+		jb lpsresize
+		
+		mov bx, errorfilemissing
+		call print
+		jmp endresize
+	resizemain:
+		
+	endresize:
+		ret
 formatdisk:
+	call readservicesector
 	mov bx, 0x6C00
 	;service sector
 	lpsformat:
 		mov byte[bx], 0
 		
-		add bx, 100
-		mov byte[bx], 0 
-		add bx, 1
-		mov byte[bx], 0
 		add bx, 1
 		
 		cmp bx, 0x7BFF
 		jb lpsformat
+	call writeservicesector
 	ret
 readstringconsole:
 	mov cx, 0;lenght buffer
@@ -294,6 +311,7 @@ beginconsole: db 0xA, 0xD, ">>", 0
 arrow: db 0xA, 0xD, "---->", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
+errorfilemissing: db 0xA, 0xD, "Error: this file is missing", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
 ;comands
 formatcomand: db "format", 0
