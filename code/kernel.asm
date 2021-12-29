@@ -44,7 +44,7 @@ console:
 		mov ax, buffer
 		mov dx, createcomand
 		
-		call equalsbegin
+		call equals
 		je create
 		
 		jmp MyError
@@ -60,7 +60,7 @@ console:
 			call print
 			
 			jmp console
-equalsbegin:
+equals:
 	;ax - s1
 	;dx - s2
 	lpsequal:
@@ -69,11 +69,11 @@ equalsbegin:
 		mov bx, dx
 		mov bl, byte [bx]
 		
-		cmp cl, 0
-		je return;  true
-		
 		cmp cl, bl
 		jne return;false
+		
+		cmp cl, 0
+		je return;  true
 		
 		add ax, 1
 		add dx, 1
