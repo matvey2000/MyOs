@@ -42,12 +42,13 @@ console:
 		
 		jmp MyError
 		delete:
-			;!!!!!!!!!!!!!!!!!!!!!!!!resize = 0
 			mov bx, writenameplease
 			call print
 			
 			call readstringconsole
 			mov dx, buffer
+			mov cx, 0
+			call resizefile
 			
 			call deletefile
 			jmp console
@@ -125,6 +126,71 @@ deletefile:
 		call writeservicesector
 		ret
 	errordelete:
+		mov bx, errorfilemissing
+		call print
+		ret
+resizefile:
+	;dx = filename (offset)
+	;cx = new size
+	call readservicesector
+	mov ax, 0x6C00
+	sub ax, 102
+	
+	;service sector
+	lpsresize:
+		add ax, 102
+		
+		cmp ax, 0x7BFF
+		ja errordelete
+		
+		push ax
+		push dx
+		call equals
+		pop dx
+		pop ax
+		je deletemain
+		
+		jmp lpsdelete
+	resizemain:
+		;rewrite
+		mov bx, ax
+		add bx, 202
+		
+		mov dx, word[bx]
+		sub bx, 102
+		sub dx, word[bx]
+		
+		mov bx, ax
+		add bx, 100
+		
+		cmp cx, dx
+		jae resizeaddcorrect
+		sub dx, cx
+		mov dl, 0;sub
+		
+		jmp resizecontinue
+		resizeaddcorrect:
+			sub cx, dx
+			mov dx, cx;correct
+			
+			mov dl, 1;add
+			jmp resizecontinue
+	resizecontinue:
+		add bx, 102
+		cmp bx, endrize
+		ja errordelete
+		
+		cmp dl, 1
+		je resizeadd
+		sub word[bx], dx
+		jmp resizecontinue
+		
+		resizeadd:
+			add word[bx], dx
+			jmp resizecontinue
+	endrize:
+		ret
+	errorresize:
 		mov bx, errorfilemissing
 		call print
 		ret
