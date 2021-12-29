@@ -17,6 +17,32 @@ console:
 	mov bx, beginconsole;
 	call print
 	
+	call readstringconsole
+	handler:
+		mov ax, buffer
+		mov dx, createcomand
+		
+		call equals
+		je create
+		
+		jmp MyError
+		create:
+			;create file
+			mov bx, writenameplease
+			call print
+			
+			call readstringconsole
+			mov ax, buffer
+			call createfile
+			
+			jmp console
+		MyError:
+			;error
+			mov bx, errorcomand
+			call print
+			
+			jmp console
+readstringconsole:
 	mov cx, 0;lenght buffer
 	input:
 		;input
@@ -29,40 +55,21 @@ console:
 		int 0x10
 		
 		cmp al, 13
-		je handler
+		je endread
 		
 		mov bx, cx
 		mov buffer[bx], al
 		add cx, 1
 		
 		jmp input
-	handler:
+	endread:
 		mov al, 0x0
 		mov bx, cx
 		mov buffer[bx], al
 		
-		mov ax, buffer
-		mov dx, createcomand
-		
-		call equals
-		je create
-		
-		jmp MyError
-		create:
-			;create file
-			mov bx, ok
-			call print
-			call createfile
-			
-			jmp console
-		MyError:
-			;error
-			mov bx, errorcomand
-			call print
-			
-			jmp console
-createfile:
-	;read
+		;return buffer
+		ret
+readservicesector:
 	mov ah, 0x2
 	mov dl, 0x80;hdd
 	xor dh, dh
@@ -74,10 +81,8 @@ createfile:
 	mov bx, 0x1000;input
 	
 	int 0x13
-	
-	;main
-	
-	;write
+	ret
+writeservicesector:
 	mov ah, 0x3
 	mov dl, 0x80;hdd
 	xor dh, dh
@@ -89,8 +94,54 @@ createfile:
 	mov bx, 0x1000;input
 	
 	int 0x13
-	
 	ret
+createfile:
+	;ax = name file(offset)
+	push ax
+	
+	;read
+	call readservicesector
+	
+	;main
+	mov bx, 0x1000
+	;service sector
+	lps_file:
+		mov al, byte [bx]
+		
+		cmp al, 0
+		je createfile_;this is 0-sector (no name)
+		jmp begincreate
+		createfile_:
+			pop ax
+			
+			writename:
+				push bx
+				mov bx, ax
+				mov cl, byte [bx]
+				pop bx
+				
+				mov byte [bx], cl
+				cmp cl, 0
+				je endcreate
+				
+				add bx, 1
+				add ax, 1
+				jmp writename
+	begincreate:
+		add bx, 102
+		cmp bx, 32860
+		jb lps_file
+		jmp err
+	err:
+		;error size
+		mov bx, errorsrevicesector
+		call print
+		
+		ret
+	endcreate:
+		;write
+		call writeservicesector
+		ret
 equals:
 	;ax - s1
 	;dx - s2
@@ -186,6 +237,8 @@ temp: dw 0
 hello: db "hello, this is MyOs", 0
 beginconsole: db 0xA, 0xD, ">>", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
+errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
+writenameplease: db 0xA, 0xD, "please, write name:", 0
 ok: db 0xA, 0xD, "OK", 0
 ;comands
 createcomand: db "create", 0
