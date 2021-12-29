@@ -173,7 +173,7 @@ resizefile:
 		pop ax
 		je resizemain
 		
-		jmp lpsdelete
+		jmp lpsresize
 	resizemain:
 		;rewrite
 		mov bx, ax
