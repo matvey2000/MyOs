@@ -71,11 +71,10 @@ start:
 		mov bx, 0x800;input
 		int 0x13
 		
-		mov dl, al
 		mov bx, mess3
 		call print
-		mov al, dl
 	StartOs:
+		mov al, 0x8;count !!!!!!!change if the os does not work!!!!!!!
 		mov ah, 0x2
 		mov dl, 0x80;hdd
 		xor dh, dh

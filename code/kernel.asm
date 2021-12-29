@@ -147,7 +147,7 @@ readservicesector:
 	;cilinder, sector
 	mov cl, 0x1
 	mov ch, 0x1
-	mov al, 0x1;count
+	mov al, 0x8;count
 	
 	mov bx, 0x6C00;input
 	
@@ -160,7 +160,7 @@ writeservicesector:
 	;cilinder, sector
 	mov cl, 0x1
 	mov ch, 0x1
-	mov al, 0x1;count
+	mov al, 0x8;count
 	
 	mov bx, 0x6C00;input
 	
