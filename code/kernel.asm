@@ -36,19 +36,19 @@ console:
 			mov bx, 0x1000
 			;service sector
 			lpstree:
+				mov al, byte [bx]
+		
+				cmp al, 0
+				je console;this is 0-sector (no name)
+				
 				push bx
 				mov bx, arrow
 				call print
 				pop bx
-				
-				mov al, byte [bx]
-				
 				push bx
 				call print
 				pop bx
-		
-				cmp al, 0
-				je console;this is 0-sector (no name)
+				
 				add bx, 102
 				cmp bx, 32860
 				jb lpstree
