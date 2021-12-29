@@ -53,7 +53,7 @@ console:
 				mov al, byte [bx]
 		
 				cmp al, 0
-				je console;this is 0-sector (no name)
+				je lpstree;this is 0-sector (no name)
 				
 				push bx
 				mov bx, arrow
@@ -64,7 +64,7 @@ console:
 				pop bx
 				
 				add bx, 102
-				cmp bx, 32860
+				cmp bx, 0x1000
 				jb lpstree
 				jmp console
 		create:
@@ -83,6 +83,27 @@ console:
 			call print
 			
 			jmp console
+deletefile:
+	;dx = file name (offset)
+	call readservicesector
+	
+	;main
+	mov ax, 0x1000
+	;service sector
+	lpsdelete:
+		call equals
+		je enddelete
+		
+		add ax, 102
+		cmp ax, 0x1000
+		jb lpsdelete
+	
+	mov bx, errorfilemissing
+	call print
+	
+	enddelete:
+		call writeservicesector
+		ret
 readstringconsole:
 	mov cx, 0;lenght buffer
 	input:
@@ -170,7 +191,7 @@ createfile:
 				jmp writename
 	begincreate:
 		add bx, 102
-		cmp bx, 32860
+		cmp bx, 0x1000
 		jb lps_file
 		jmp err
 	err:
@@ -279,6 +300,7 @@ beginconsole: db 0xA, 0xD, ">>", 0
 arrow: db 0xA, 0xD, "---->", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
+errorfilemissing: db 0xA, 0xD, "Error: this file is missing", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
 ;comands
 deletecomand: db "del", 0
