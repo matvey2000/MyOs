@@ -189,21 +189,21 @@ resizefile:
 		cmp cx, dx
 		jae resizeaddcorrect
 		sub dx, cx
-		mov dl, 0;sub
+		mov cl, 0;sub
 		
 		jmp resizecontinue
 		resizeaddcorrect:
 			sub cx, dx
 			mov dx, cx;correct
 			
-			mov dl, 1;add
+			mov cl, 1;add
 			jmp resizecontinue
 	resizecontinue:
 		add bx, 102
 		cmp bx, 0x7BFF
 		ja endresize
 		
-		cmp dl, 1
+		cmp cl, 1
 		je resizeadd
 		sub word[bx], dx
 		jmp resizecontinue
