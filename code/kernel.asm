@@ -26,6 +26,11 @@ console:
 		je format
 		
 		mov ax, buffer
+		mov dx, deletecomand
+		call equals
+		je delete
+		
+		mov ax, buffer
 		mov dx, treecomand
 		call equals
 		je tree
@@ -36,6 +41,16 @@ console:
 		je create
 		
 		jmp MyError
+		delete:
+			;!!!!!!!!!!!!!!!!!!!!!!!!resize = 0
+			mov bx, writenameplease
+			call print
+			
+			call readstringconsole
+			mov dx, buffer
+			
+			call deletefile
+			jmp console
 		format:
 			call formatdisk
 			
@@ -82,60 +97,36 @@ console:
 			call print
 			
 			jmp console
-resizefile:
+deletefile:
 	;dx = filename (offset)
-	;cx = new size (byte)
 	call readservicesector
 	mov ax, 0x6C00
+	sub ax, 102
+	
 	;service sector
-	lpsresize:
-		call equals
-		je resizemain
-		
+	lpsdelete:
 		add ax, 102
-		cmp ax, 0x7BFF
-		jb lpsresize
 		
+		cmp ax, 0x7BFF
+		ja errordelete
+		
+		push ax
+		push dx
+		call equals
+		pop dx
+		pop ax
+		je deletemain
+		
+		jmp lpsdelete
+	deletemain:
+		;delete
+		mov bx, ax
+		mov byte [bx], 0
+		call writeservicesector
+		ret
+	errordelete:
 		mov bx, errorfilemissing
 		call print
-		jmp endresize
-	resizemain:
-		;rewrite
-		add ax, 202
-		mov bx, ax
-		
-		push bx
-		mov dx, word [bx]
-		sub bx, 102
-		sub dx, word [bx]
-		pop bx
-		
-		;dx - size
-		
-		cmp cx, dx
-		jae resizeaddcor
-		mov al, 1;sub
-		sub dx, cx;correct
-		jmp resizerewrite
-		resizeaddcor:
-			mov al, 0;add
-			sub cx, dx
-			mov dx, cx;correct
-			jmp resizerewrite
-	resizerewrite:
-		cmp al, 0
-		je resizeadd
-		sub word [bx], dx
-		jmp resizerewritecontinue
-		resizeadd:
-			add word [bx], dx
-			jmp resizerewritecontinue
-		resizerewritecontinue:
-			add bx, 102
-			cmp bx, 0x7BFF
-			jb resizerewrite
-	endresize:
-		call writeservicesector
 		ret
 formatdisk:
 	mov bx, 0x6C00
@@ -177,6 +168,11 @@ readstringconsole:
 		;return buffer
 		ret
 readservicesector:
+	push ax
+	push bx
+	push cx
+	push dx
+	
 	mov ah, 0x2
 	mov dl, 0x80;hdd
 	xor dh, dh
@@ -188,8 +184,18 @@ readservicesector:
 	mov bx, 0x6C00;input
 	
 	int 0x13
+	
+	pop dx
+	pop cx
+	pop bx
+	pop ax
 	ret
 writeservicesector:
+	push ax
+	push bx
+	push cx
+	push dx
+	
 	mov ah, 0x3
 	mov dl, 0x80;hdd
 	xor dh, dh
@@ -201,6 +207,11 @@ writeservicesector:
 	mov bx, 0x6C00;input
 	
 	int 0x13
+	
+	pop dx
+	pop cx
+	pop bx
+	pop ax
 	ret
 createfile:
 	;ax = name file(offset)
@@ -350,6 +361,7 @@ errorfilemissing: db 0xA, 0xD, "Error: this file is missing", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
 ;comands
 formatcomand: db "format", 0
+deletecomand: db "delete", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
 
