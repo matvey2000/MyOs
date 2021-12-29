@@ -1,6 +1,7 @@
 use16
-org 0x7c00
+org 0x800
 
+db 0xAA, 0xBB, 0xCC;my start code
 start:
 	;init
 	mov ax, 0
@@ -20,6 +21,11 @@ console:
 	call readstringconsole
 	handler:
 		mov ax, buffer
+		mov dx, deletecomand
+		call equals
+		je tree
+		
+		mov ax, buffer
 		mov dx, treecomand
 		call equals
 		je tree
@@ -30,6 +36,14 @@ console:
 		je create
 		
 		jmp MyError
+		delete:
+			;delete file
+			mov bx, writenameplease
+			call print
+			
+			call readstringconsole
+			
+			jmp console
 		tree:
 			call readservicesector
 			
@@ -101,7 +115,7 @@ readservicesector:
 	mov dl, 0x80;hdd
 	xor dh, dh
 	;cilinder, sector
-	mov cl, 0x1
+	mov cl, 0x3
 	mov ch, 0x1
 	mov al, 0x1;count
 	
@@ -114,7 +128,7 @@ writeservicesector:
 	mov dl, 0x80;hdd
 	xor dh, dh
 	;cilinder, sector
-	mov cl, 0x1
+	mov cl, 0x3
 	mov ch, 0x1
 	mov al, 0x1;count
 	
@@ -251,7 +265,6 @@ printnumber:
 		xor bh, bh
 		int 0x10
 		
-		
 		cmp cx, 0
 		ja prnt
 		
@@ -261,14 +274,14 @@ printnumber:
 		pop ax
 		ret
 temp: dw 0 
-hello: db "hello, this is MyOs", 0
+hello: db 0xA, 0xD, "hello, this is MyOs", 0
 beginconsole: db 0xA, 0xD, ">>", 0
 arrow: db 0xA, 0xD, "---->", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
-ok: db 0xA, 0xD, "OK", 0
 ;comands
+deletecomand: db "del", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
 
