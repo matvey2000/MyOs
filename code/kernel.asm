@@ -84,6 +84,8 @@ console:
 			jmp console
 resizefile:
 	;dx = filename (offset)
+	;cx = new size (byte)
+	call readservicesector
 	mov ax, 0x6C00
 	;service sector
 	lpsresize:
@@ -98,8 +100,42 @@ resizefile:
 		call print
 		jmp endresize
 	resizemain:
+		;rewrite
+		add ax, 202
+		mov bx, ax
 		
+		push bx
+		mov dx, word [bx]
+		sub bx, 102
+		sub dx, word [bx]
+		pop bx
+		
+		;dx - size
+		
+		cmp cx, dx
+		jae resizeaddcor
+		mov al, 1;sub
+		sub dx, cx;correct
+		jmp resizerewrite
+		resizeaddcor:
+			mov al, 0;add
+			sub cx, dx
+			mov dx, cx;correct
+			jmp resizerewrite
+	resizerewrite:
+		cmp al, 0
+		je resizeadd
+		sub word [bx], dx
+		jmp resizerewritecontinue
+		resizeadd:
+			add word [bx], dx
+			jmp resizerewritecontinue
+		resizerewritecontinue:
+			add bx, 102
+			cmp bx, 0x7BFF
+			jb resizerewrite
 	endresize:
+		call writeservicesector
 		ret
 formatdisk:
 	mov bx, 0x6C00
