@@ -52,6 +52,7 @@ console:
 			;create file
 			mov bx, ok
 			call print
+			call createfile
 			
 			jmp console
 		MyError:
@@ -60,6 +61,36 @@ console:
 			call print
 			
 			jmp console
+createfile:
+	;read
+	mov ah, 0x2
+	mov dl, 0x80;hdd
+	xor dh, dh
+	;cilinder, sector
+	mov cl, 0x1
+	mov ch, 0x1
+	mov al, 0x1;count
+	
+	mov bx, 0x1000;input
+	
+	int 0x13
+	
+	;main
+	
+	;write
+	mov ah, 0x3
+	mov dl, 0x80;hdd
+	xor dh, dh
+	;cilinder, sector
+	mov cl, 0x1
+	mov ch, 0x1
+	mov al, 0x1;count
+	
+	mov bx, 0x1000;input
+	
+	int 0x13
+	
+	ret
 equals:
 	;ax - s1
 	;dx - s2
