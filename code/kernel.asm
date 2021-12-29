@@ -17,7 +17,7 @@ console:
 	mov bx, beginconsole;
 	call print
 	
-	mov ax, 0;lenght buffer
+	mov cx, 0;lenght buffer
 	input:
 		;input
 		mov ah, 0x0
@@ -30,18 +30,57 @@ console:
 		
 		cmp al, 13
 		je handler
-		mov bx, ax
+		
+		mov bx, cx
 		mov buffer[bx], al
-		add ax, 1
+		add cx, 1
 		
 		jmp input
 	handler:
+		mov al, 0x0
+		mov bx, cx
+		mov buffer[bx], al
 		
-		;error
-		mov bx, errorcomand
-		call print
+		mov ax, buffer
+		mov dx, createcomand
 		
-		jmp console
+		call equalsbegin
+		je create
+		
+		jmp MyError
+		create:
+			;create file
+			mov bx, ok
+			call print
+			
+			jmp console
+		MyError:
+			;error
+			mov bx, errorcomand
+			call print
+			
+			jmp console
+equalsbegin:
+	;ax - s1
+	;dx - s2
+	lpsequal:
+		mov bx, ax
+		mov cl, byte [bx]
+		mov bx, dx
+		mov bl, byte [bx]
+		
+		cmp cl, 0
+		je return;  true
+		
+		cmp cl, bl
+		jne return;false
+		
+		add ax, 1
+		add dx, 1
+		jmp lpsequal
+	return:
+		ret
+	;return flag (read je, jne)
 print:
 	;bx = offset message
 	push ax
@@ -112,8 +151,12 @@ printnumber:
 		pop bx
 		pop ax
 		ret
-
+temp: dw 0 
 hello: db "hello, this is MyOs", 0
 beginconsole: db 0xA, 0xD, ">>", 0
-buffer: db 100 dup(0)
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
+ok: db 0xA, 0xD, "OK", 0
+;comands
+createcomand: db "create", 0
+
+buffer: db 100 dup(0)
