@@ -171,7 +171,7 @@ resizefile:
 		call equals
 		pop dx
 		pop ax
-		je deletemain
+		je resizemain
 		
 		jmp lpsdelete
 	resizemain:
