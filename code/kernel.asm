@@ -21,9 +21,9 @@ console:
 	call readstringconsole
 	handler:
 		mov ax, buffer
-		mov dx, deletecomand
+		mov dx, formatcomand
 		call equals
-		je tree
+		je format
 		
 		mov ax, buffer
 		mov dx, treecomand
@@ -36,24 +36,27 @@ console:
 		je create
 		
 		jmp MyError
-		delete:
-			;delete file
-			mov bx, writenameplease
+		format:
+			call formatdisk
+			
+			mov bx, ok
 			call print
-			
-			call readstringconsole
-			
 			jmp console
 		tree:
 			call readservicesector
 			
-			mov bx, 0x1000
+			mov bx, 0x6C00
+			sub bx, 102
 			;service sector
 			lpstree:
+				add bx, 102
+				cmp bx, 0x7BFF
+				ja console
+				
 				mov al, byte [bx]
 		
 				cmp al, 0
-				je console;this is 0-sector (no name)
+				je lpstree;this is 0-sector (no name)
 				
 				push bx
 				mov bx, arrow
@@ -62,11 +65,7 @@ console:
 				push bx
 				call print
 				pop bx
-				
-				add bx, 102
-				cmp bx, 0x905C
-				jb lpstree
-				jmp console
+				jmp lpstree
 		create:
 			;create file
 			mov bx, writenameplease
@@ -83,6 +82,21 @@ console:
 			call print
 			
 			jmp console
+formatdisk:
+	mov bx, 0x6C00
+	;service sector
+	lpsformat:
+		mov byte[bx], 0
+		
+		add bx, 100
+		mov byte[bx], 0 
+		add bx, 1
+		mov byte[bx], 0
+		add bx, 1
+		
+		cmp bx, 0x7BFF
+		jb lpsformat
+	ret
 readstringconsole:
 	mov cx, 0;lenght buffer
 	input:
@@ -119,7 +133,7 @@ readservicesector:
 	mov ch, 0x1
 	mov al, 0x1;count
 	
-	mov bx, 0x1000;input
+	mov bx, 0x6C00;input
 	
 	int 0x13
 	ret
@@ -132,7 +146,7 @@ writeservicesector:
 	mov ch, 0x1
 	mov al, 0x1;count
 	
-	mov bx, 0x1000;input
+	mov bx, 0x6C00;input
 	
 	int 0x13
 	ret
@@ -144,7 +158,7 @@ createfile:
 	call readservicesector
 	
 	;main
-	mov bx, 0x1000
+	mov bx, 0x6C00
 	;service sector
 	lps_file:
 		mov al, byte [bx]
@@ -170,7 +184,7 @@ createfile:
 				jmp writename
 	begincreate:
 		add bx, 102
-		cmp bx, 0x905C
+		cmp bx, 0x7BFF
 		jb lps_file
 		jmp err
 	err:
@@ -275,13 +289,14 @@ printnumber:
 		ret
 temp: dw 0 
 hello: db 0xA, 0xD, "hello, this is MyOs", 0
+ok: db 0xA, 0xD, "OK", 0
 beginconsole: db 0xA, 0xD, ">>", 0
 arrow: db 0xA, 0xD, "---->", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
 ;comands
-deletecomand: db "del", 0
+formatcomand: db "format", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
 
