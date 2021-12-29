@@ -9,7 +9,7 @@ start:
 	mov ss, ax
 	mov sp, 0xFFFF
 	
-	mov bx, hello;
+	mov bx, hello
 	call print
 	
 	jmp console
@@ -20,12 +20,39 @@ console:
 	call readstringconsole
 	handler:
 		mov ax, buffer
-		mov dx, createcomand
+		mov dx, treecomand
+		call equals
+		je tree
 		
+		mov ax, buffer
+		mov dx, createcomand
 		call equals
 		je create
 		
 		jmp MyError
+		tree:
+			call readservicesector
+			
+			mov bx, 0x1000
+			;service sector
+			lpstree:
+				push bx
+				mov bx, arrow
+				call print
+				pop bx
+				
+				mov al, byte [bx]
+				
+				push bx
+				call print
+				pop bx
+		
+				cmp al, 0
+				je console;this is 0-sector (no name)
+				add bx, 102
+				cmp bx, 32860
+				jb lpstree
+				jmp console
 		create:
 			;create file
 			mov bx, writenameplease
@@ -236,11 +263,13 @@ printnumber:
 temp: dw 0 
 hello: db "hello, this is MyOs", 0
 beginconsole: db 0xA, 0xD, ">>", 0
+arrow: db 0xA, 0xD, "---->", 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
 ok: db 0xA, 0xD, "OK", 0
 ;comands
+treecomand: db "tree", 0
 createcomand: db "create", 0
 
 buffer: db 100 dup(0)
