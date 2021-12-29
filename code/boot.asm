@@ -67,7 +67,7 @@ start:
 		xor dh, dh
 		;cilinder, sector
 		mov cl, 0x1
-		mov ch, 0x0
+		mov ch, 0x3
 		mov bx, 0x800;input
 		int 0x13
 		
@@ -81,7 +81,7 @@ start:
 		xor dh, dh
 		;cilinder, sector
 		mov cl, 0x1
-		mov ch, 0x0
+		mov ch, 0x3
 		mov bx, 0x800;input
 		int 0x13
 		
