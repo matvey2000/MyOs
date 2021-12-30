@@ -372,6 +372,10 @@ writefile:
 			continuewrite:
 				cmp ax, cx
 				jb writelpsmain
+		pop dx
+		push dx
+		
+		call resizefile
 		
 		jmp endwrite
 	errorwrite:
