@@ -16,24 +16,10 @@ console:
 	mov bx, beginconsole;
 	call print
 	
-	call readstringconsole
-	mov bx, beginconsole
-	call print
-	mov ax, buffer
-	mov dx, buffer
-	call read
-	mov bx, buffer
-	call print
-	
-	mov bx, beginconsole
-	call print
-	call readstringconsole
 	mov ax, deletecomand
-	mov bx, 2
-	mov dx, buffer
+	mov bx, 7
+	mov dx, createcomand
 	call writefile
-	mov bx, beginconsole
-	call print
 	
 	call readstringconsole
 	handler:
@@ -282,7 +268,7 @@ writefile:
 	errorwrite:
 		mov bx, errorfilemissing
 		call print
-		jmp enddelete
+		jmp endwrite
 	endwrite:
 		pop dx
 		pop cx
