@@ -759,10 +759,12 @@ printnumber:
 	push dx
 	
 	;print ax
+	;bx = base system
 	mov cx, 0
 	jmp symball
 	symball:
-		mov bx, 16;base system
+		push bx
+		pop bx
 		xor dx, dx
 		div bx
 		
