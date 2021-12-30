@@ -266,6 +266,7 @@ writefile:
 		
 		jmp endwrite
 	errorwrite:
+		pop ax
 		mov bx, errorfilemissing
 		call print
 		jmp endwrite
