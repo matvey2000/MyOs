@@ -9,7 +9,7 @@ header:
 	dw 0x0000
 	
 headerend:
-	db "end", 0
+	db "", 0
 	times 0x64-$+headerend db 0
 	dw 0x0001
 	
