@@ -235,7 +235,7 @@ read:
 				
 				add ax, 1
 				add dx, 1
-				cmp ax, 0x6CFF
+				cmp ax, 0x6C24
 				jbe readsector
 			pop ax
 			
@@ -342,7 +342,7 @@ writefile:
 				
 				add bx, 1
 				add dx, 1
-				cmp bx, 0x6CFF
+				cmp bx, 0x6C24
 				jbe writesector
 			
 			;write sector
