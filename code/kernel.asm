@@ -55,6 +55,9 @@ console:
 			
 			call readstringconsole
 			
+			mov bx, newstring
+			call print
+			
 			mov dx, buffer
 			call startfile
 		diskcom:
@@ -780,12 +783,13 @@ printnumber:
 		pop bx
 		pop ax
 		ret
-disk: db byte [disk]
+disk: db 0x80
 
 hello: db 0xA, 0xD, "hello, this is MyOs", 0
 ok: db 0xA, 0xD, "OK", 0
 beginconsole: db 0xA, 0xD, ">>", 0
 arrow: db 0xA, 0xD, "---->", 0
+newstring: db 0xA, 0xD, 0
 errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
 errorfilemissing: db 0xA, 0xD, "Error: this file is missing", 0
