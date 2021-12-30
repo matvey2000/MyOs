@@ -11,7 +11,7 @@ start:
 	call inittableofinterrupt
 	
 	;init
-	mov ax, 0
+	xor ax, ax
 	mov ds, ax
 	mov ax, 0x9000
 	mov ss, ax
@@ -166,21 +166,68 @@ console:
 inittableofinterrupt:
 	;table of interrupt vectors
 	;0x20 - transfer of control to the operating system
-	mov word[0x80], 0x0
-	mov word[0x81], 0x803
+	mov word[0x80], console
+	mov word[0x82], 0x80
 	
 	ret
 startfile:
 	;dx = file name (offset)
 	
 	mov ax, 0x4C00
+	
 	call read
 	
-	xor ax, ax
-	xor bx, bx
-	xor cx, cx
-	xor dx, dx
-	jmp 0x0:0x4C00
+	call checkname
+	
+	mov dl, 1
+	je startmain
+	call print
+	jmp console
+	
+	startmain:
+		xor ax, ax
+		xor bx, bx
+		xor cx, cx
+		xor dx, dx
+		jmp 0x0:0x4C00
+checkname:
+	;dx = filename
+	;return dl (0 - false, 1- true)
+	push ax
+	push bx
+	push cx
+	push dx
+	
+	call readservicesector
+	mov ax, 0x6C00
+	sub ax, 102
+	
+	;service sector
+	lpscheck:
+		add ax, 102
+		
+		cmp ax, 0x7BFF
+		ja checkf
+		
+		call equals
+		je checkt
+		
+		jmp lpscheck
+	checkt:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
+		mov dl, 1
+		ret
+	checkf:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
+		mov dl, 0
+		ret
+	
 setdisk:
 	;al = disk number
 	mov byte[disk], al
