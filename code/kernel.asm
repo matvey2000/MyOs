@@ -10,16 +10,16 @@ start:
 	mov ss, ax
 	mov sp, 0xFFFF
 	
+	mov ax, deletecomand
+	mov bx, 7
+	mov dx, createcomand
+	call writefile
+	
 	mov bx, hello
 	call print
 console:
 	mov bx, beginconsole;
 	call print
-	
-	mov ax, deletecomand
-	mov bx, 7
-	mov dx, createcomand
-	call writefile
 	
 	call readstringconsole
 	handler:
@@ -275,7 +275,6 @@ writefile:
 		pop bx
 		pop ax
 		ret
-	ret
 deletefile:
 	;dx = filename (offset)
 	push ax
