@@ -179,7 +179,7 @@ startfile:
 	
 	call checkname
 	
-	mov dl, 1
+	cmp dl, 1
 	je startmain
 	call print
 	jmp console
