@@ -226,7 +226,7 @@ writefile:
 		add cx, ax;end
 		pop dx
 		
-		add ah, 3
+		add ah, 4
 		
 		cmp al, 0
 		je correctwrite1
