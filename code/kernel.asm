@@ -8,6 +8,8 @@ org 0x800
 ;0x9000 - oxFFFF : stack
 db 0xAA, 0xBB, 0xCC;my start code
 start:
+	call inittableofinterrupt
+	
 	;init
 	mov ax, 0
 	mov ds, ax
@@ -59,7 +61,7 @@ console:
 			call print
 			
 			mov dx, buffer
-			call startfile
+			jmp startfile
 		diskcom:
 			mov bx, writenameplease
 			call print
@@ -161,12 +163,18 @@ console:
 			call print
 			
 			jmp console
+inittableofinterrupt:
+	;table of interrupt vectors
+	;0x20 - transfer of control to the operating system
+	mov word[0x80], 0x0
+	mov word[0x81], 0x803
+	
+	ret
 startfile:
 	;dx = file name (offset)
 	
 	mov ax, 0x4C00
 	call read
-	pop ax
 	
 	xor ax, ax
 	xor bx, bx

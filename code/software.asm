@@ -18,4 +18,5 @@ start:
 	mov al, '0'
 	xor bh, bh
 	int 0x10
-	jmp $
+	
+	jmp 0x0:0x803
