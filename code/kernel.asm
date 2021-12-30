@@ -166,7 +166,7 @@ console:
 inittableofinterrupt:
 	;table of interrupt vectors
 	;0x20 - transfer of control to the operating system
-	mov word[0x80], console
+	mov word[0x80], 0x3
 	mov word[0x82], 0x80
 	
 	ret

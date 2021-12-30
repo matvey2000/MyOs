@@ -1,6 +1,5 @@
 use16
-org 0x800
-
+org 0x4C00
 begin:
 	times 0x4800 db 0
 header:
@@ -19,4 +18,4 @@ start:
 	xor bh, bh
 	int 0x10
 	
-	int 0x20
+	int 20h
