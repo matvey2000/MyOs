@@ -552,7 +552,7 @@ readservicesector:
 	push dx
 	
 	mov ah, 0x2
-	mov dl, disk
+	mov dl, byte[disk]
 	xor dh, dh
 	;cilinder, sector
 	mov cl, 0x1
@@ -575,7 +575,7 @@ writeservicesector:
 	push dx
 	
 	mov ah, 0x3
-	mov dl, disk
+	mov dl, byte[disk]
 	xor dh, dh
 	;cilinder, sector
 	mov cl, 0x1
