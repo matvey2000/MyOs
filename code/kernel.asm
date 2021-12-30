@@ -1,7 +1,7 @@
 use16
 org 0x800
 
-;0x800 - ?       : kernel
+;0x0800 - ?       : kernel
 ;0x4C00 - 0x6EFF : soft
 ;0x6C00 - 0x7EFF : buffer
 ;0x7C00 - 0x7CFF : loader
@@ -245,7 +245,7 @@ read:
 			push dx
 			mov cx, ax
 			mov ah, 0x2
-			mov dl, 0x80;hdd
+			mov dl, byte [disk];hdd
 			xor dh, dh
 			mov al, 0x1;count
 			mov bx, 0x6C00;input
@@ -382,7 +382,7 @@ writefile:
 			push dx
 			mov cx, ax
 			mov ah, 0x3
-			mov dl, 0x80;hdd
+			mov dl, byte [disk];hdd
 			xor dh, dh
 			mov al, 0x1;count
 			mov bx, 0x6C00;input
@@ -780,7 +780,7 @@ printnumber:
 		pop bx
 		pop ax
 		ret
-disk: db 0x80
+disk: db byte [disk]
 
 hello: db 0xA, 0xD, "hello, this is MyOs", 0
 ok: db 0xA, 0xD, "OK", 0
