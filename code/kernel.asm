@@ -23,22 +23,67 @@ console:
 		call equals
 		je format
 		
-		mov ax, buffer
+		mov dx, diskcomand
+		call equals
+		je diskcom
+		
 		mov dx, deletecomand
 		call equals
 		je delete
 		
-		mov ax, buffer
 		mov dx, treecomand
 		call equals
 		je tree
 		
-		mov ax, buffer
 		mov dx, createcomand
 		call equals
 		je create
 		
 		jmp MyError
+		diskcom:
+			mov bx, writenameplease
+			call print
+			
+			call readstringconsole
+			;A,B,C,D...Z (сapital letters, floppy) or hdd1, hdd2
+			mov ax, buffer
+			mov dx, hdd1
+			call equals
+			je hdd1set
+			mov dx, hdd2
+			call equals
+			je hdd2set
+			
+			;floppy
+			mov bx, buffer
+			mov al, byte[bx]
+			sub al, 0x41
+			cmp al, 25
+			jbe floppy
+			
+			hdd1set:
+				mov al, 0x80
+				call setdisk
+				
+				jmp console
+			hdd2set:
+				mov al, 0x81
+				call setdisk
+				
+				jmp console
+			floppy:
+				add bx, 1
+				mov ah, byte[bx]
+				
+				cmp ah, 0
+				je mainfloppy
+				mov bx, errorcomand
+				call print
+				jmp console
+				mainfloppy:
+					call setdisk
+					
+					jmp console
 		delete:
 			mov bx, writenameplease
 			call print
@@ -96,6 +141,10 @@ console:
 			call print
 			
 			jmp console
+setdisk:
+	;al = disk number
+	mov byte[disk], al
+	ret
 read:
 	;dx = filename
 	;ax = buffer (offset)
@@ -503,7 +552,7 @@ readservicesector:
 	push dx
 	
 	mov ah, 0x2
-	mov dl, 0x80;hdd
+	mov dl, disk
 	xor dh, dh
 	;cilinder, sector
 	mov cl, 0x1
@@ -526,7 +575,7 @@ writeservicesector:
 	push dx
 	
 	mov ah, 0x3
-	mov dl, 0x80;hdd
+	mov dl, disk
 	xor dh, dh
 	;cilinder, sector
 	mov cl, 0x1
@@ -697,7 +746,8 @@ printnumber:
 		pop bx
 		pop ax
 		ret
-temp: dw 0 
+disk: db 0x80
+
 hello: db 0xA, 0xD, "hello, this is MyOs", 0
 ok: db 0xA, 0xD, "OK", 0
 beginconsole: db 0xA, 0xD, ">>", 0
@@ -706,8 +756,12 @@ errorcomand: db 0xA, 0xD, "Error: invalid command", 0
 errorsrevicesector: db 0xA, 0xD, "Error: the service sector is crowded", 0
 errorfilemissing: db 0xA, 0xD, "Error: this file is missing", 0
 writenameplease: db 0xA, 0xD, "please, write name:", 0
+;other
+hdd1: db "hdd1", 0
+hdd2: db "hdd2", 0
 ;comands
 formatcomand: db "format", 0
+diskcomand: db "disk", 0
 deletecomand: db "delete", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
