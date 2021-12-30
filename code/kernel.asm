@@ -166,7 +166,6 @@ startfile:
 	
 	mov ax, 0x4C00
 	call read
-	
 	pop ax
 	
 	xor ax, ax
@@ -753,7 +752,7 @@ printnumber:
 	mov cx, 0
 	jmp symball
 	symball:
-		mov bx, 2;base system
+		mov bx, 16;base system
 		xor dx, dx
 		div bx
 		
@@ -770,7 +769,13 @@ printnumber:
 		sub cx, 1
 		
 		pop ax
-		add ax, '0'
+		
+		add al, '0'
+		
+		cmp al, '9'
+		jbe continueprnt
+		add al, 7
+	continueprnt:
 		mov ah, 0xe
 		xor bh, bh
 		int 0x10
