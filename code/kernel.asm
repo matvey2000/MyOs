@@ -196,7 +196,6 @@ writefile:
 	
 	mov cl, 9
 	shr bx, cl
-	add bh, 4
 	
 	mov cx, bx
 	call resizefile
@@ -224,8 +223,18 @@ writefile:
 		add ax, 100
 		mov bx, ax
 		mov ax, word[bx];start file
-		add cx, ax
+		add cx, ax;end
 		pop dx
+		
+		add ah, 3
+		
+		cmp al, 0
+		je correctwrite1
+		jmp continuewrite1
+		correctwrite1:
+			add ax, 1
+			add cx, 1
+	continuewrite1:
 		
 		writelpsmain:
 			mov bx, 0x6C00
@@ -261,8 +270,15 @@ writefile:
 			pop ax
 			
 			add ax, 1
-			cmp ax, cx
-			jb writelpsmain
+			cmp al, 0
+			je correctwrite
+			jmp continuewrite
+			correctwrite:
+				add ax, 1
+				add cx, 1
+			continuewrite:
+				cmp ax, cx
+				jb writelpsmain
 		
 		jmp endwrite
 	errorwrite:
@@ -336,11 +352,7 @@ resizefile:
 		cmp ax, 0x7BFF
 		ja errorresize
 		
-		push ax
-		push dx
 		call equals
-		pop dx
-		pop ax
 		je resizemain
 		
 		jmp lpsresize
