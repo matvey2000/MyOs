@@ -1,6 +1,11 @@
 use16
 org 0x800
 
+;0x800 - ?       : kernel
+;0x4C00 - 0x6EFF : soft
+;0x6C00 - 0x7EFF : buffer
+;0x7C00 - 0x7CFF : loader
+;0x9000 - oxFFFF : stack
 db 0xAA, 0xBB, 0xCC;my start code
 start:
 	;init
@@ -23,6 +28,10 @@ console:
 		call equals
 		je format
 		
+		mov dx, startcomand
+		call equals
+		je startcom
+		
 		mov dx, diskcomand
 		call equals
 		je diskcom
@@ -40,6 +49,14 @@ console:
 		je create
 		
 		jmp MyError
+		startcom:
+			mov bx, writenameplease
+			call print
+			
+			call readstringconsole
+			
+			mov dx, buffer
+			call startfile
 		diskcom:
 			mov bx, writenameplease
 			call print
@@ -141,6 +158,19 @@ console:
 			call print
 			
 			jmp console
+startfile:
+	;dx = file name (offset)
+	
+	mov ax, 0x4C00
+	call read
+	
+	pop ax
+	
+	xor ax, ax
+	xor bx, bx
+	xor cx, cx
+	xor dx, dx
+	jmp 0x0:0x4C00
 setdisk:
 	;al = disk number
 	mov byte[disk], al
@@ -765,6 +795,7 @@ hdd1: db "hdd1", 0
 hdd2: db "hdd2", 0
 ;comands
 formatcomand: db "format", 0
+startcomand: db "start", 0
 diskcomand: db "disk", 0
 deletecomand: db "delete", 0
 treecomand: db "tree", 0
