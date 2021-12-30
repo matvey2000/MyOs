@@ -177,56 +177,11 @@ startfile:
 	
 	call read
 	
-	call checkname
-	
-	cmp dl, 1
-	je startmain
-	call print
-	jmp console
-	
-	startmain:
-		xor ax, ax
-		xor bx, bx
-		xor cx, cx
-		xor dx, dx
-		jmp 0x0:0x4C00
-checkname:
-	;dx = filename
-	;return dl (0 - false, 1- true)
-	push ax
-	push bx
-	push cx
-	push dx
-	
-	call readservicesector
-	mov ax, 0x6C00
-	sub ax, 102
-	
-	;service sector
-	lpscheck:
-		add ax, 102
-		
-		cmp ax, 0x7BFF
-		ja checkf
-		
-		call equals
-		je checkt
-		
-		jmp lpscheck
-	checkt:
-		pop dx
-		pop cx
-		pop bx
-		pop ax
-		mov dl, 1
-		ret
-	checkf:
-		pop dx
-		pop cx
-		pop bx
-		pop ax
-		mov dl, 0
-		ret
+	xor ax, ax
+	xor bx, bx
+	xor cx, cx
+	xor dx, dx
+	jmp 0x0:0x4C00
 	
 setdisk:
 	;al = disk number
