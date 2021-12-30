@@ -12,10 +12,27 @@ start:
 	
 	mov bx, hello
 	call print
-	
-	jmp console
 console:
 	mov bx, beginconsole;
+	call print
+	
+	call readstringconsole
+	mov bx, beginconsole
+	call print
+	mov ax, buffer
+	mov dx, buffer
+	call read
+	mov bx, buffer
+	call print
+	
+	mov bx, beginconsole
+	call print
+	call readstringconsole
+	mov ax, deletecomand
+	mov bx, 2
+	mov dx, buffer
+	call writefile
+	mov bx, beginconsole
 	call print
 	
 	call readstringconsole
@@ -98,13 +115,180 @@ console:
 			call print
 			
 			jmp console
-rewritefile:
+read:
+	;dx = filename
+	;ax = buffer (offset)
+	push ax
+	push bx
+	push cx
+	push dx
+	push ax
+	
+	call readservicesector
+	mov ax, 0x6C00
+	sub ax, 102
+	
+	;service sector
+	lpsread:
+		add ax, 102
+		
+		cmp ax, 0x7BFF
+		ja errorread
+		
+		push ax
+		push dx
+		call equals
+		pop dx
+		pop ax
+		je readmain
+		
+		jmp lpsread
+	readmain:
+		add ax, 100
+		mov bx, ax
+		mov ax, word[bx];start
+		add bx, 102
+		mov cx, word[bx];end
+		pop dx;buffer
+		
+		lpsreadmain:
+			;write sector
+			push ax
+			push bx
+			push cx
+			push dx
+			mov cx, ax
+			mov ah, 0x2
+			mov dl, 0x80;hdd
+			xor dh, dh
+			mov al, 0x1;count
+			mov bx, 0x6C00;input
+			int 0x13
+			pop dx
+			pop cx
+			pop bx
+			
+			mov ax, 0x6C00
+			readsector:
+				push ax
+				mov bx, ax
+				mov al, byte [bx]
+				mov bx, dx
+				mov byte [bx], al
+				pop ax
+				
+				add ax, 1
+				add dx, 1
+				cmp ax, 0x6CFF
+				jbe readsector
+			pop ax
+			
+			add ax, 1
+			cmp ax, cx
+			jb lpsreadmain
+		
+		jmp endreadfile
+	errorread:
+		mov bx, errorfilemissing
+		call print
+		jmp endreadfile
+	endreadfile:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
+		ret
+writefile:
 	;ax = code (offset)
 	;bx = lenght code
 	;dx = filename
+	push ax
+	push bx
+	push cx
+	push dx
+	push ax
 	
+	mov cl, 9
+	shr bx, cl
+	add bh, 4
 	
+	mov cx, bx
+	call resizefile
 	
+	call readservicesector
+	mov ax, 0x6C00
+	sub ax, 102
+	
+	;service sector
+	lpswrite:
+		add ax, 102
+		
+		cmp ax, 0x7BFF
+		ja errorwrite
+		
+		push ax
+		push dx
+		call equals
+		pop dx
+		pop ax
+		je writemain
+		
+		jmp lpswrite
+	writemain:
+		add ax, 100
+		mov bx, ax
+		mov ax, word[bx];start file
+		add cx, ax
+		pop dx
+		
+		writelpsmain:
+			mov bx, 0x6C00
+			writesector:
+				push dx
+				push bx
+				mov bx, dx
+				mov dl, byte[bx]
+				pop bx
+				mov byte[bx], dl
+				pop dx
+				
+				add bx, 1
+				add dx, 1
+				cmp bx, 0x6CFF
+				jbe writesector
+			
+			;write sector
+			push ax
+			push bx
+			push cx
+			push dx
+			mov cx, ax
+			mov ah, 0x3
+			mov dl, 0x80;hdd
+			xor dh, dh
+			mov al, 0x1;count
+			mov bx, 0x6C00;input
+			int 0x13
+			pop dx
+			pop cx
+			pop bx
+			pop ax
+			
+			add ax, 1
+			cmp ax, cx
+			jb writelpsmain
+		
+		jmp endwrite
+	errorwrite:
+		mov bx, errorfilemissing
+		call print
+		jmp enddelete
+	endwrite:
+		pop dx
+		pop cx
+		pop bx
+		pop ax
+		ret
 	ret
 deletefile:
 	;dx = filename (offset)
