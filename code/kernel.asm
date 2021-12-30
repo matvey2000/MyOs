@@ -137,6 +137,32 @@ read:
 		mov cx, word[bx];end
 		pop dx;buffer
 		
+		add ah, 4
+		add ch, 4
+		
+		cmp al, 0
+		je correctread2
+		
+		cmp cl, 0
+		je correctread12
+		
+		jmp continueread2
+		correctread2:
+			add ax, 1
+			add cx, 1
+			
+			cmp cl, 0
+			je correctread12
+			jmp continueread2
+		correctread12:
+			add ax, 1
+			add cx, 1
+			
+			cmp al, 0
+			je correctread2
+			jmp continueread2
+		continueread2:
+		
 		lpsreadmain:
 			;write sector
 			push ax
@@ -168,6 +194,29 @@ read:
 				cmp ax, 0x6CFF
 				jbe readsector
 			pop ax
+			
+			cmp al, 0
+			je correctread
+			
+			cmp cl, 0
+			je correctread1
+			
+			jmp continueread
+			correctread:
+				add ax, 1
+				add cx, 1
+				
+				cmp cl, 0
+				je correctread1
+				jmp continueread
+			correctread1:
+				add ax, 1
+				add cx, 1
+				
+				cmp al, 0
+				je correctread
+				jmp continueread
+			continueread:
 			
 			add ax, 1
 			cmp ax, cx
