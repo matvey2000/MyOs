@@ -19,4 +19,4 @@ start:
 	xor bh, bh
 	int 0x10
 	
-	jmp $
+	int 0x20
