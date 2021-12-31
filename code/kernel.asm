@@ -600,14 +600,32 @@ readstringconsole:
 		xor bh, bh
 		int 0x10
 		
-		cmp al, 13
-		je endread
-		
-		mov bx, cx
-		mov buffer[bx], al
-		add cx, 1
-		
-		jmp input
+		cmp al, 8
+		je backspace
+		jmp continue
+		backspace:
+			mov ah, 0xe
+			xor bh, bh
+			
+			mov al, ' '
+			int 0x10
+			mov al, 8
+			int 0x10
+			
+			mov bx, cx
+			mov al, 0
+			mov buffer[bx], al
+			sub cx, 1
+			jmp input
+		continue:
+			cmp al, 13
+			je endread
+			
+			mov bx, cx
+			mov buffer[bx], al
+			add cx, 1
+			
+			jmp input
 	endread:
 		mov al, 0x0
 		mov bx, cx
