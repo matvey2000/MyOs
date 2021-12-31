@@ -273,32 +273,19 @@ read:
 				jb readsector
 			pop ax
 			
-			cmp al, 0
-			je correctread
-			
-			cmp cl, 0
-			je correctread1
-			
+			add al, 1
+			cmp al, 33
+			jae correctread
 			jmp continueread
 			correctread:
-				add ax, 1
-				add cx, 1
+				mov al, 0
+				add ah, 1
 				
-				cmp cl, 0
-				je correctread1
-				jmp continueread
-			correctread1:
-				add ax, 1
-				add cx, 1
-				
-				cmp al, 0
-				je correctread
 				jmp continueread
 			continueread:
-			
-			add ax, 1
-			cmp ax, cx
-			jb lpsreadmain
+				add ax, 1
+				cmp ax, cx
+				jb lpsreadmain
 		
 		jmp endreadfile
 	errorread:
@@ -398,13 +385,15 @@ writefile:
 			pop bx
 			pop ax
 			
-			add ax, 1
-			cmp al, 0
-			je correctwrite
+			add al, 1
+			cmp al, 33
+			jae correctwrite
 			jmp continuewrite
 			correctwrite:
-				add ax, 1
-				add cx, 1
+				mov al, 0
+				add ah, 1
+				
+				jmp continuewrite
 			continuewrite:
 				cmp ax, cx
 				jb writelpsmain
