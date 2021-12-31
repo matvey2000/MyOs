@@ -400,8 +400,6 @@ writefile:
 		pop dx
 		push dx
 		
-		call resizefile
-		
 		jmp endwrite
 	errorwrite:
 		pop ax
