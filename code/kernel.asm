@@ -397,8 +397,6 @@ writefile:
 			continuewrite:
 				cmp ax, cx
 				jb writelpsmain
-		pop dx
-		push dx
 		
 		jmp endwrite
 	errorwrite:
