@@ -277,7 +277,7 @@ read:
 			jae correctread
 			jmp continueread
 			correctread:
-				mov al, 0
+				mov al, 1
 				add ah, 1
 				
 				jmp continueread
@@ -392,7 +392,7 @@ writefile:
 			jae correctwrite
 			jmp continuewrite
 			correctwrite:
-				mov al, 0
+				mov al, 1
 				add ah, 1
 				
 				jmp continuewrite
