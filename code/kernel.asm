@@ -171,10 +171,6 @@ inittableofinterrupt:
 	mov word[0x80], 0x3
 	mov word[0x82], 0x80
 	
-	mov bx, 16
-	mov ax, console - 0x800
-	call printnumber
-	
 	ret
 startfile:
 	;dx = file name (offset)
@@ -238,6 +234,9 @@ read:
 		mov cx, dx
 		pop ax
 		add ah, 4
+		
+		add al, 1
+		add cl, 1
 		
 		pop dx;buffer
 		
@@ -349,6 +348,9 @@ writefile:
 		mov dh, al
 		mov cx, dx
 		pop ax
+		
+		add al, 1
+		add cl, 1
 		
 		add ah, 4
 		
