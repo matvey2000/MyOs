@@ -164,12 +164,59 @@ console:
 			
 			jmp console
 int21:
+	;ch = 0x0 - create (ax  - offset name file)
+	;ch = 0x1 - delete (ax  - offset name file)
+	;ch = 0x2 - write  (dx  - offset name file, ax - offset buffer, bx - size buffer(byte))
+	;ch = 0x3 - read   (dx  - offset name file, ax - offset buffer)
 	
+	cmp ch, 0x0
+	je createint
+	cmp ch, 0x1
+	je deleteint
+	cmp ch, 0x2
+	je writeint
+	cmp ch, 0x3
+	je readint
+	
+	iret
+	createint:
+		call createfile
+		iret
+	deleteint:
+		call deletefile
+		iret
+	writeint:
+		call writefile
+		iret
+	readint:
+		call read
+		iret
+int22:
+	;ch = 0x0 - print       (bx - offset to string)
+	;ch = 0x1 - printnumber (ax - number,bx - base)
+	
+	cmp ch, 0x0
+	je printint
+	cmp ch, 0x1
+	je printnumberint
+	iret
+	printint:
+		call print
+		iret
+	printnumberint:
+		call printnumber
+		iret
 inittableofinterrupt:
 	;table of interrupt vectors
 	;0x20 - transfer of control to the operating system
+	;0x21 - file system
+	;0x22 - other
 	mov word[0x80], 0x3
 	mov word[0x82], 0x80
+	mov word[0x84], int21-0x800
+	mov word[0x86], 0x80
+	mov word[0x88], int22-0x800
+	mov word[0x8A], 0x80
 	
 	ret
 startfile:

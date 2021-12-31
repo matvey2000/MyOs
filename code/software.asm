@@ -13,9 +13,10 @@ headerend:
 	
 	times 0x12000-$+begin db 0
 start:
-	mov ah, 0xe
-	mov al, '0'
-	xor bh, bh
-	int 0x10
+	mov ch, 0x1
+	mov bx, 16
+	mov ax, 0x2A
+	int 0x22
 	
-	int 20h
+	int 0x20
+mess: db "myfile", 0
