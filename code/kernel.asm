@@ -163,11 +163,17 @@ console:
 			call print
 			
 			jmp console
+int21:
+	
 inittableofinterrupt:
 	;table of interrupt vectors
 	;0x20 - transfer of control to the operating system
 	mov word[0x80], 0x3
 	mov word[0x82], 0x80
+	
+	mov bx, 16
+	mov ax, console - 0x800
+	call printnumber
 	
 	ret
 startfile:
@@ -207,11 +213,7 @@ read:
 		cmp ax, 0x7BFF
 		ja errorread
 		
-		push ax
-		push dx
 		call equals
-		pop dx
-		pop ax
 		je readmain
 		
 		jmp lpsread
@@ -221,33 +223,23 @@ read:
 		mov ax, word[bx];start
 		add bx, 102
 		mov cx, word[bx];end
-		pop dx;buffer
 		
+		mov bl, 32
+		div bl
+		mov dh, al
+		mov dl, ah
+		mov ax, dx
+		
+		push ax
+		mov ax, cx
+		div bl
+		mov dl, ah
+		mov dh, al
+		mov cx, dx
+		pop ax
 		add ah, 4
-		add ch, 4
 		
-		cmp al, 0
-		je correctread2
-		
-		cmp cl, 0
-		je correctread12
-		
-		jmp continueread2
-		correctread2:
-			add ax, 1
-			add cx, 1
-			
-			cmp cl, 0
-			je correctread12
-			jmp continueread2
-		correctread12:
-			add ax, 1
-			add cx, 1
-			
-			cmp al, 0
-			je correctread2
-			jmp continueread2
-		continueread2:
+		pop dx;buffer
 		
 		lpsreadmain:
 			;write sector
@@ -346,11 +338,7 @@ writefile:
 		cmp ax, 0x7BFF
 		ja errorwrite
 		
-		push ax
-		push dx
 		call equals
-		pop dx
-		pop ax
 		je writemain
 		
 		jmp lpswrite
@@ -361,15 +349,21 @@ writefile:
 		add cx, ax;end
 		pop dx
 		
-		add ah, 4
+		mov bl, 32
+		div bl
+		mov dh, al
+		mov dl, ah
+		mov ax, dx
 		
-		cmp al, 0
-		je correctwrite1
-		jmp continuewrite1
-		correctwrite1:
-			add ax, 1
-			add cx, 1
-	continuewrite1:
+		push ax
+		mov ax, cx
+		div bl
+		mov dl, ah
+		mov dh, al
+		mov cx, dx
+		pop ax
+		
+		add ah, 4
 		
 		writelpsmain:
 			mov bx, 0x6C00
