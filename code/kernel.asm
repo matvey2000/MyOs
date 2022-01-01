@@ -597,7 +597,7 @@ readstringconsole:
 		;al
 		
 		mov ah, 0xe
-		xor bh, bh
+		xor bx, bx
 		int 0x10
 		
 		cmp al, 8
@@ -605,7 +605,7 @@ readstringconsole:
 		jmp continue
 		backspace:
 			mov ah, 0xe
-			xor bh, bh
+			xor bx, bx
 			
 			mov al, ' '
 			int 0x10
@@ -783,7 +783,7 @@ print:
 		cmp al, 0
 		je endprint
 		
-		xor bh, bh
+		xor bx, bx
 		int 0x10
 		pop bx
 		
@@ -835,7 +835,7 @@ printnumber:
 		add al, 7
 	continueprnt:
 		mov ah, 0xe
-		xor bh, bh
+		xor bx, bx
 		int 0x10
 		
 		cmp cx, 0
