@@ -93,7 +93,18 @@ draw:
 		call printsuit
 		
 		push cx
-		mov cx, 34
+		mov cx, 16
+		call forward
+		pop cx
+		
+		;print |
+		xor bh, bh
+		mov bl, 10
+		mov al, '|'
+		int 0x10
+		
+		push cx
+		mov cx, 17
 		call forward
 		pop cx
 		
