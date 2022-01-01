@@ -30,6 +30,7 @@ start:
 		int 0x10
 		
 		call draw
+		call printthrownout
 		
 		;input
 		mov ah, 0x0
@@ -92,7 +93,10 @@ draw:
 	continuedraw:
 		call printsuit
 		
-		call printthrownout
+		push cx
+		mov cx, 34
+		call forward
+		pop cx
 		
 		;print ?
 		mov bx, cx
@@ -112,7 +116,7 @@ draw:
 			int 0x10
 			
 			add cx, 1
-			cmp cx, 24
+			cmp cx, 18
 			jb lpsdraw
 	ret
 forward:
@@ -236,23 +240,14 @@ printsuit:
 		pop cx
 		ret
 printthrownout:
-	push cx
-	mov cx, 16
-	call forward
-	pop cx
-	
-	;print |
+	mov ah, 0xe
 	xor bh, bh
-	mov bl, 10
-	mov al, '|'
-	int 0x10
+	mov al, 'a'
 	
-	push cx
-	mov cx, 17
-	call forward
-	pop cx
+	int 0x10
 	ret
 
-mythrownout: db 5 dup(0)
-mycarts: db 24 dup(0)
-hiscarts: db 24 dup(0)
+mythrownout: db 5 dup(0);nominal | quantity
+mythrownoutsuits: db 5 dup(0);suits
+mycarts: db 18 dup(0)
+hiscarts: db 18 dup(0)
