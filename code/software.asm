@@ -15,8 +15,22 @@ start:
 	mov mycarts[2], al
 	mov al, 0x42
 	mov mycarts[3], al
-	call draw
+	
+	mov al, 0x13
+	mov hiscarts[0], al
+	mov al, 0x24
+	mov hiscarts[1], al
+	mov al, 0x39
+	mov hiscarts[2], al
 	lps:
+		;cursor
+		xor bh, bh
+		xor dx, dx
+		mov ah, 0x2
+		int 0x10
+		
+		call draw
+		
 		;input
 		mov ah, 0x0
 		int 0x16
@@ -79,13 +93,30 @@ draw:
 		call printsuit
 		
 		push cx
-		mov cx, 35
+		mov cx, 34
 		call forward
 		pop cx
 		
-		add cx, 1
-		cmp cx, 24
-		jb lpsdraw
+		;print ?
+		mov bx, cx
+		mov dl, hiscarts[bx]
+		
+		xor bh, bh
+		mov bl, 10
+		
+		cmp dl, 0
+		je noprint
+		cart:
+			mov al, '?'
+			jmp continuedraw2
+		noprint:
+			mov al, ' '
+		continuedraw2:
+			int 0x10
+			
+			add cx, 1
+			cmp cx, 24
+			jb lpsdraw
 	ret
 forward:
 	;cx forward
