@@ -240,14 +240,34 @@ printsuit:
 		pop cx
 		ret
 printthrownout:
-	mov ah, 0xe
-	xor bh, bh
-	mov al, 'a'
+	;test
+	mov al, 00100001b
+	mov mythrownout[0], al
+	mov al, 00000001b
+	mov mythrownoutsuits[0], al
 	
-	int 0x10
+	mov cx, 0
+	mainthrown:
+		mov ah, 0xe
+		xor bh, bh
+		mov al, '#'
+		
+		int 0x10
+		
+		mov al, 0xA
+		int 0x10
+		mov al, 0xD
+		int 0x10
+		
+		add cx, 1
+		cmp cx, 5
+		jb mainthrown
 	ret
 
 mythrownout: db 5 dup(0);nominal | quantity
 mythrownoutsuits: db 5 dup(0);suits
+
+histhrownout: db 5 dup(0);nominal | quantity
+histhrownoutsuits: db 5 dup(0);suits
 mycarts: db 18 dup(0)
 hiscarts: db 18 dup(0)
