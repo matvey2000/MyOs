@@ -7,6 +7,8 @@ start:
 	int 0x10
 	
 	;main
+	
+	;test
 	mov al, 0x13
 	mov mycarts[0], al
 	mov al, 0x24
@@ -22,6 +24,17 @@ start:
 	mov hiscarts[1], al
 	mov al, 0x39
 	mov hiscarts[2], al
+	
+	mov al, 00100001b
+	mov mythrownout[0], al
+	mov al, 00000001b
+	mov mythrownoutsuits[0], al
+	
+	mov al, 00110001b
+	mov histhrownout[0], al
+	mov al, 00000001b
+	mov histhrownoutsuits[0], al
+	
 	lps:
 		;cursor
 		xor bh, bh
@@ -240,19 +253,61 @@ printsuit:
 		pop cx
 		ret
 printthrownout:
-	;test
-	mov al, 00100001b
-	mov mythrownout[0], al
-	mov al, 00000001b
-	mov mythrownoutsuits[0], al
-	
 	mov cx, 0
 	mainthrown:
 		mov ah, 0xe
 		xor bh, bh
+		mov bl, 10
 		mov al, '#'
-		
 		int 0x10
+		
+		;main
+		;my
+		mov bx, cx
+		mov dl, mythrownout[bx]
+		
+		push dx
+		push cx
+		mov cl, 4
+		shr dl, cl
+		mov bl, 10
+		call printnominal
+		pop cx
+		pop dx
+		
+		and dl, 1111b
+		mov dh, dl
+		push bx
+		mov bx, cx
+		mov dl, mythrownoutsuits[bx]
+		pop bx
+		
+		call printsuit
+		
+		mov al, '|'
+		int 0x10
+		
+		;his
+		mov bx, cx
+		mov dl, histhrownout[bx]
+		
+		push dx
+		push cx
+		mov cl, 4
+		shr dl, cl
+		mov bl, 10
+		call printnominal
+		pop cx
+		pop dx
+		
+		and dl, 1111b
+		mov dh, dl
+		push bx
+		mov bx, cx
+		mov dl, histhrownoutsuits[bx]
+		pop bx
+		
+		call printsuit
 		
 		mov al, 0xA
 		int 0x10
@@ -269,5 +324,6 @@ mythrownoutsuits: db 5 dup(0);suits
 
 histhrownout: db 5 dup(0);nominal | quantity
 histhrownoutsuits: db 5 dup(0);suits
+
 mycarts: db 18 dup(0)
 hiscarts: db 18 dup(0)
