@@ -92,21 +92,7 @@ draw:
 	continuedraw:
 		call printsuit
 		
-		push cx
-		mov cx, 16
-		call forward
-		pop cx
-		
-		;print |
-		xor bh, bh
-		mov bl, 10
-		mov al, '|'
-		int 0x10
-		
-		push cx
-		mov cx, 17
-		call forward
-		pop cx
+		call printthrownout
 		
 		;print ?
 		mov bx, cx
@@ -249,6 +235,24 @@ printsuit:
 		call forward
 		pop cx
 		ret
+printthrownout:
+	push cx
+	mov cx, 16
+	call forward
+	pop cx
+	
+	;print |
+	xor bh, bh
+	mov bl, 10
+	mov al, '|'
+	int 0x10
+	
+	push cx
+	mov cx, 17
+	call forward
+	pop cx
+	ret
 
+mythrownout: db 5 dup(0)
 mycarts: db 24 dup(0)
 hiscarts: db 24 dup(0)
