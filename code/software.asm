@@ -70,6 +70,7 @@ draw:
 		
 		onedh:
 			mov dh, 1
+			sub dl, 1
 			jmp continuedraw
 		zerodh:
 			mov dh, 0
@@ -77,7 +78,7 @@ draw:
 		call printsuit
 		
 		push cx
-		mov cx, 32
+		mov cx, 35
 		call forward
 		pop cx
 		
@@ -160,10 +161,29 @@ printsuit:
 	main:
 		mov al, '('
 		int 0x10
-		mov al, 'A'
+		
+		cmp dl, 0x3
+		je Ssuit
+		cmp dl, 0x2
+		je Csuit
+		cmp dl, 0x1
+		je Hsuit
+	Dsuit:
+		mov al, 'D'
+		jmp endmain
+	Hsuit:
+		mov al, 'H'
+		jmp endmain
+	Csuit:
+		mov al, 'C'
+		jmp endmain
+	Ssuit:
+		mov al, 'S'
+	endmain:
 		int 0x10
 		mov al, ')'
 		int 0x10
+		ret
 	no:
 		push cx
 		mov cx, 3
