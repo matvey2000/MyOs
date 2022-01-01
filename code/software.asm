@@ -38,7 +38,7 @@ start:
 			
 			jmp continue
 		continue:
-			cmp ax, 0x011B
+			cmp ax, 0x011B;esc
 			jne lps
 	
 	;text mode
@@ -71,6 +71,7 @@ draw:
 		onedh:
 			mov dh, 1
 			sub dl, 1
+			
 			jmp continuedraw
 		zerodh:
 			mov dh, 0
@@ -158,10 +159,12 @@ printsuit:
 	
 	cmp dh, 0
 	je no
+	
+	mov al, '('
+	int 0x10
 	main:
-		mov al, '('
-		int 0x10
-		
+		push dx
+		and dl, 00000011b
 		cmp dl, 0x3
 		je Ssuit
 		cmp dl, 0x2
@@ -170,20 +173,34 @@ printsuit:
 		je Hsuit
 	Dsuit:
 		mov al, 'D'
-		jmp endmain
+		jmp continuesuit
 	Hsuit:
 		mov al, 'H'
-		jmp endmain
+		jmp continuesuit
 	Csuit:
 		mov al, 'C'
-		jmp endmain
+		jmp continuesuit
 	Ssuit:
 		mov al, 'S'
-	endmain:
+	continuesuit:
+		pop dx
 		int 0x10
+		push cx
+		mov cl, 2
+		shr dl, cl
+		pop cx
+		
+		sub dh, 1
+		cmp dh, 1
+		jae comma
+		
 		mov al, ')'
 		int 0x10
 		ret
+	comma:
+		mov al, ','
+		int 0x10
+		jmp main
 	no:
 		push cx
 		mov cx, 3
