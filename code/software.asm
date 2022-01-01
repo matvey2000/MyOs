@@ -7,13 +7,13 @@ start:
 	int 0x10
 	
 	;main
-	mov al, 0x3
+	mov al, 0x13
 	mov mycarts[0], al
-	mov al, 0x4
+	mov al, 0x24
 	mov mycarts[1], al
-	mov al, 0x9
+	mov al, 0x39
 	mov mycarts[2], al
-	mov al, 0x2
+	mov al, 0x42
 	mov mycarts[3], al
 	call draw
 	lps:
@@ -52,13 +52,32 @@ draw:
 	lpsdraw:
 		mov bx, cx
 		mov dl, mycarts[bx]
-		and dl, 00001111b
 		
+		push dx
+		and dl, 00001111b
 		mov bl, 10
 		call printnominal
+		pop dx
 		
 		push cx
-		mov cx, 38
+		mov cl, 4
+		shr dl, cl
+		mov ch, 1
+		pop cx
+		
+		cmp dl, 0
+		je zerodh
+		
+		onedh:
+			mov dh, 1
+			jmp continuedraw
+		zerodh:
+			mov dh, 0
+	continuedraw:
+		call printsuit
+		
+		push cx
+		mov cx, 32
 		call forward
 		pop cx
 		
@@ -82,12 +101,12 @@ printnominal:
 	mov ah, 0xe
 	xor bh, bh
 	
-	cmp dl, 0x0
-	je endnominal
 	cmp dl, 0x5
 	je ten
 	mov al, ' '
 	int 0x10
+	cmp dl, 0x0
+	je endnominal
 	cmp dl, 0x4
 	jbe number
 	cmp dl, 0x6
@@ -129,6 +148,27 @@ printnominal:
 	endnominal:
 		mov al, ' '
 		int 0x10
+		ret
+printsuit:
+	;dl - suits
+	;dh - quantity
+	mov ah, 0xe
+	xor bh, bh
+	
+	cmp dh, 0
+	je no
+	main:
+		mov al, '('
+		int 0x10
+		mov al, 'A'
+		int 0x10
+		mov al, ')'
+		int 0x10
+	no:
+		push cx
+		mov cx, 3
+		call forward
+		pop cx
 		ret
 
 mycarts: db 24 dup(0)
