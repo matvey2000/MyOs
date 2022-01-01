@@ -35,6 +35,8 @@ start:
 	mov al, 00000001b
 	mov histhrownoutsuits[0], al
 	
+	mov al, 1
+	mov byte[cord], al
 	lps:
 		;cursor
 		xor bh, bh
@@ -83,8 +85,17 @@ draw:
 		
 		push dx
 		and dl, 00001111b
-		mov bl, 10
-		call printnominal
+		mov bl, 10;standart
+		
+		push ax
+		mov al, byte[cord]
+		sub al, 1
+		cmp al, cl
+		jne continueprintnominal
+		mov bl, 1;spceial
+		continueprintnominal:
+			pop ax
+			call printnominal
 		pop dx
 		
 		push cx
@@ -319,6 +330,7 @@ printthrownout:
 		jb mainthrown
 	ret
 
+cord: db 0
 mythrownout: db 5 dup(0);nominal | quantity
 mythrownoutsuits: db 5 dup(0);suits
 
