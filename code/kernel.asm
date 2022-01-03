@@ -281,45 +281,27 @@ read:
 		mov cx, dx
 		pop ax
 		add ah, 4
+		add ch, 4
 		
 		add al, 1
 		add cl, 1
 		
 		pop dx;buffer
-		
 		lpsreadmain:
 			;write sector
-			push ax
-			push bx
-			push cx
-			push dx
+			pusha
+			mov bx, dx;input
 			mov cx, ax
 			mov ah, 0x2
 			mov dl, byte [disk];hdd
 			xor dh, dh
 			mov al, 0x1;count
-			mov bx, 0x6C00;input
 			int 0x13
-			pop dx
-			pop cx
-			pop bx
+			popa
 			
-			mov ax, 0x6C00
-			readsector:
-				push ax
-				mov bx, ax
-				mov al, byte [bx]
-				mov bx, dx
-				mov byte [bx], al
-				pop ax
-				
-				add ax, 1
-				add dx, 1
-				cmp ax, 0x6C24
-				jb readsector
-			pop ax
-			
+			add dx, 512
 			add al, 1
+
 			cmp al, 33
 			jae correctread
 			jmp continueread
@@ -329,7 +311,6 @@ read:
 				
 				jmp continueread
 			continueread:
-				add ax, 1
 				cmp ax, cx
 				jb lpsreadmain
 		
@@ -399,41 +380,28 @@ writefile:
 		add al, 1
 		add cl, 1
 		
+		add ch, 4
 		add ah, 4
 		
 		writelpsmain:
-			mov bx, 0x6C00
-			writesector:
-				push dx
-				push bx
-				mov bx, dx
-				mov dl, byte[bx]
-				pop bx
-				mov byte[bx], dl
-				pop dx
-				
-				add bx, 1
-				add dx, 1
-				cmp bx, 0x6C24
-				jb writesector
-			
 			;write sector
 			push ax
 			push bx
 			push cx
 			push dx
+			mov bx, dx;input
 			mov cx, ax
 			mov ah, 0x3
 			mov dl, byte [disk];hdd
 			xor dh, dh
 			mov al, 0x1;count
-			mov bx, 0x6C00;input
 			int 0x13
 			pop dx
 			pop cx
 			pop bx
 			pop ax
 			
+			add dx, 512
 			add al, 1
 			cmp al, 33
 			jae correctwrite
