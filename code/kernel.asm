@@ -164,10 +164,11 @@ console:
 			
 			jmp console
 int21:
-	;ch = 0x0 - create (ax  - offset name file)
-	;ch = 0x1 - delete (ax  - offset name file)
-	;ch = 0x2 - write  (dx  - offset name file, ax - offset buffer, bx - size buffer(byte))
-	;ch = 0x3 - read   (dx  - offset name file, ax - offset buffer)
+	;ch = 0x0 - create   (ax  - offset name file)
+	;ch = 0x1 - delete   (ax  - offset name file)
+	;ch = 0x2 - write    (dx  - offset name file, ax - offset buffer, bx - size buffer(byte))
+	;ch = 0x3 - read     (dx  - offset name file, ax - offset buffer)
+	;ch = 0x4 - set disk (al - disk number)
 	
 	cmp ch, 0x0
 	je createint
@@ -177,6 +178,8 @@ int21:
 	je writeint
 	cmp ch, 0x3
 	je readint
+	cmp ch, 0x4
+	je setdiskint
 	
 	iret
 	createint:
@@ -190,6 +193,9 @@ int21:
 		iret
 	readint:
 		call read
+		iret
+	setdiskint:
+		call setdisk
 		iret
 int22:
 	;ch = 0x0 - print       (bx - offset to string)
