@@ -165,7 +165,7 @@ console:
 			jmp console
 int21:
 	;ch = 0x0 - create   (ax  - offset name file)
-	;ch = 0x1 - delete   (ax  - offset name file)
+	;ch = 0x1 - delete   (dx  - offset name file)
 	;ch = 0x2 - write    (dx  - offset name file, ax - offset buffer, bx - size buffer(byte))
 	;ch = 0x3 - read     (dx  - offset name file, ax - offset buffer)
 	;ch = 0x4 - set disk (al - disk number)
@@ -205,6 +205,7 @@ int22:
 	je printint
 	cmp ch, 0x1
 	je printnumberint
+	
 	iret
 	printint:
 		call print
@@ -344,6 +345,7 @@ writefile:
 	mov cl, 9
 	shr bx, cl
 	
+	add bx, 1
 	mov cx, bx
 	call resizefile
 	
@@ -367,7 +369,6 @@ writefile:
 		mov bx, ax
 		mov ax, word[bx];start file
 		add cx, ax;end
-		pop dx
 		
 		mov bl, 32
 		div bl
@@ -388,6 +389,8 @@ writefile:
 		
 		add ch, 4
 		add ah, 4
+		
+		pop dx;code
 		
 		writelpsmain:
 			;write sector
