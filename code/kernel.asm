@@ -503,32 +503,40 @@ resizefile:
 		mov bx, ax
 		add bx, 100
 		
-		cmp cx, dx
-		jae resizeaddcorrect
-		sub dx, cx
-		mov cl, 0;sub
+		sub cx, dx
+		mov dx, cx;correct
 		
-		jmp resizecontinue
-		resizeaddcorrect:
-			sub cx, dx
-			mov dx, cx;correct
+		lpsresizemain:
+			add bx, 102
+			cmp bx, 0x7BFF
+			ja endresize
 			
-			mov cl, 1;add
-			jmp resizecontinue
-	resizecontinue:
-		add bx, 102
-		cmp bx, 0x7BFF
-		ja endresize
-		
-		cmp cl, 1
-		je resizeadd
-		sub word[bx], dx
-		jmp resizecontinue
-		
-		resizeadd:
+			pusha
+			mov ah, 0x2
+			mov dl, byte[disk]
+			xor dh, dh
+			;cilinder, sector
+			mov cx, word[bx]
+			mov al, 0x1;count
+			mov bx, 0x6000;input
+			int 0x13
+			popa
+			
 			add word[bx], dx
-			jmp resizecontinue
+			
+			pusha
+			mov ah, 0x3
+			mov dl, byte[disk]
+			xor dh, dh
+			;cilinder, sector
+			mov cx, word[bx]
+			mov al, 0x1;count
+			mov bx, 0x6000;input
+			int 0x13
+			popa
+			jmp lpsresizemain
 	endresize:
+		call writeservicesector
 		pop dx
 		pop cx
 		pop bx
@@ -835,5 +843,8 @@ diskcomand: db "disk", 0
 deletecomand: db "delete", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
+
+;test
+flname: db "1", 0
 
 buffer: db 100 dup(0)
