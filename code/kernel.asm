@@ -112,8 +112,6 @@ console:
 			
 			call readstringconsole
 			mov dx, buffer
-			mov cx, 0
-			call resizefile
 			
 			call deletefile
 			jmp console
@@ -442,6 +440,9 @@ deletefile:
 	push bx
 	push cx
 	push dx
+	
+	mov cx, 0
+	call resizefile
 	
 	call readservicesector
 	mov ax, 0x6C00
