@@ -844,7 +844,4 @@ deletecomand: db "delete", 0
 treecomand: db "tree", 0
 createcomand: db "create", 0
 
-;test
-flname: db "1", 0
-
 buffer: db 100 dup(0)
