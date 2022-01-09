@@ -827,6 +827,9 @@ printnumber:
 		cmp cx, 0
 		ja prnt
 		
+		mov bx, newstring
+		call print
+		
 		pop dx
 		pop cx
 		pop bx
