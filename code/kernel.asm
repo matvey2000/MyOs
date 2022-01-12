@@ -516,37 +516,109 @@ resizefile:
 		sub cx, dx
 		mov dx, cx;correct
 		
+		pusha
 		lpsresizemain:
 			add bx, 102
 			cmp bx, 0x7BFF
-			ja endresize
-			
-			pusha
-			mov ah, 0x2
-			mov dl, byte[disk]
-			xor dh, dh
-			;cilinder, sector
-			mov cx, word[bx]
-			mov al, 0x1;count
-			mov bx, 0x6000;input
-			int 0x13
-			popa
+			ja cont
 			
 			add word[bx], dx
 			
-			pusha
-			mov ah, 0x3
-			mov dl, byte[disk]
-			xor dh, dh
-			;cilinder, sector
-			mov cx, word[bx]
-			mov al, 0x1;count
-			mov bx, 0x6000;input
-			int 0x13
-			popa
 			jmp lpsresizemain
+		cont:
+			call writeservicesector
+			popa
+			pusha
+			mov ax, bx
+			mov bx, 10
+			popa
+			add bx, 102
+			mov cx, word[bx]
+			
+			sub bx, 100
+			
+			cmp byte[bx], 0
+			je endresize
+			
+			add bx, 100
+			pusha
+			bufcopy:
+				pusha
+				mov ah, 0x2
+				mov dl, byte[disk]
+				xor dh, dh
+				;cilinder, sector
+				push cx
+				add ch, 3
+				mov al, 0x1;count
+				mov bx, 0x6C00;input
+				int 0x13
+				
+				mov ah, 0x3
+				mov dl, byte[disk]
+				xor dh, dh
+				;cilinder, sector
+				pop cx
+				add ch, 64
+				mov al, 0x1;count
+				mov bx, 0x6C00;input
+				int 0x13
+				popa
+				
+				add cl, 1
+				cmp cl, 33
+				jae correctresize
+				jmp contresize
+				correctresize:
+					mov cl, 1
+					add ch, 1
+					jmp contresize
+				contresize:
+					cmp ch, 64
+					jb bufcopy
+		cont1:
+			popa
+			mov cx, 0
+			bufcopy1:
+				pusha
+				;cilinder, sector
+				push cx
+				push dx
+				
+				add ch, 64
+				
+				mov ah, 0x2
+				mov dl, byte[disk]
+				xor dh, dh
+				mov al, 0x1;count
+				mov bx, 0x6C00;input
+				int 0x13
+				
+				pop dx
+				pop cx
+				add ch, 3
+				add cx, dx
+				mov ah, 0x3
+				mov dl, byte[disk]
+				xor dh, dh
+				;cilinder, sector
+				mov al, 0x1;count
+				mov bx, 0x6C00;input
+				int 0x13
+				popa
+				
+				add cl, 1
+				cmp cl, 33
+				jae correctresize1
+				jmp contresize1
+				correctresize1:
+					mov cl, 1
+					add ch, 1
+					jmp contresize1
+				contresize1:
+					cmp ch, 64
+					jb bufcopy1
 	endresize:
-		call writeservicesector
 		pop dx
 		pop cx
 		pop bx
