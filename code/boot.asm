@@ -39,10 +39,10 @@ start:
 	call print
 	start_:
 		mov ah, 0x2
-		mov dl, 0x1;disk B
+		mov dl, 0x0;disk A
 		xor dh, dh
 		;cilinder, sector
-		mov cl, 0x1
+		mov cl, 0x2
 		mov ch, 0x0
 		
 		mov al, 0x8;count !!!!!!!change if the os does not work!!!!!!!
